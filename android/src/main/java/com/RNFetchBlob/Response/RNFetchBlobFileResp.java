@@ -34,8 +34,13 @@ public class RNFetchBlobFileResp extends ResponseBody {
     long bytesDownloaded = 0;
     ReactApplicationContext rctContext;
     FileOutputStream ofStream;
+    long chunkSize;
+    long chunkInterval;
 
-    public RNFetchBlobFileResp(ReactApplicationContext ctx, String taskId, ResponseBody body, String path, boolean overwrite) throws IOException {
+    private long bytesWritten = 0;
+    private long lastIndex = 0;
+
+    public RNFetchBlobFileResp(ReactApplicationContext ctx, String taskId, ResponseBody body, String path, boolean overwrite, long chunkSize, long chunkInterval) throws IOException {
         super();
         this.rctContext = ctx;
         this.mTaskId = taskId;
@@ -57,6 +62,8 @@ public class RNFetchBlobFileResp extends ResponseBody {
                 f.createNewFile();
             ofStream = new FileOutputStream(new File(path), appendToExistingFile);
         }
+        this.chunkSize = chunkSize;
+        this.chunkInterval = chunkInterval;
     }
 
     @Override
@@ -78,6 +85,19 @@ public class RNFetchBlobFileResp extends ResponseBody {
     private class ProgressReportingSource implements Source {
         @Override
         public long read(@NonNull Buffer sink, long byteCount) throws IOException {
+            if (chunkSize > 0) {
+                bytesWritten += byteCount;
+                long index = bytesWritten / chunkSize;
+
+                if (index > lastIndex) {
+                    lastIndex = index;
+                    try {
+                        Thread.sleep(chunkInterval);
+
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
             try {
                 byte[] bytes = new byte[(int) byteCount];
                 long read = originalBody.byteStream().read(bytes, 0, (int) byteCount);

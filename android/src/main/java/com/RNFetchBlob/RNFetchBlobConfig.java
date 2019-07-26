@@ -18,6 +18,8 @@ class RNFetchBlobConfig {
     public Boolean increment = false;
     public Boolean followRedirect = true;
     public ReadableArray binaryContentTypes = null;
+    public long chunkSize;
+    public long chunkInterval;
 
     RNFetchBlobConfig(ReadableMap options) {
         if(options == null)
@@ -46,6 +48,8 @@ class RNFetchBlobConfig {
         if(options.hasKey("timeout")) {
             this.timeout = options.getInt("timeout");
         }
+        this.chunkSize = options.hasKey("chunkSize") ? options.getInt("chunkSize") : 0;
+        this.chunkInterval = options.hasKey("chunkInterval") ? options.getInt("chunkInterval") : 100;
     }
 
 }

@@ -267,7 +267,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
                 }
                 else if(cType.isEmpty()) {
                     if(!cType.equalsIgnoreCase("")) {
-                      builder.header("Content-Type", "application/octet-stream");
+                        builder.header("Content-Type", "application/octet-stream");
                     }
                     requestType = RequestType.SingleFile;
                 }
@@ -362,7 +362,10 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
                                         taskId,
                                         originalResponse.body(),
                                         destPath,
-                                        options.overwrite);
+                                        options.overwrite,
+                                        options.chunkSize,
+                                        options.chunkInterval
+                                );
                                 break;
                             default:
                                 extended = new RNFetchBlobDefaultResp(
